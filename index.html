@@ -12,12 +12,8 @@
             font-family: 'Inter', sans-serif;
             background-color: #f3f4f6;
         }
-        .sidebar {
-            /* Fix for scrolling sidebar */
-            height: calc(100vh - 4rem); 
-            overflow-y: auto;
-            position: sticky;
-            top: 4rem; 
+        .sidebar.open {
+            transform: translateX(0);
         }
         .question-card {
             border-left: 4px solid #3b82f6;
@@ -44,23 +40,30 @@
 </head>
 <body class="text-gray-800">
 
-    <div class="fixed top-0 left-0 right-0 bg-blue-700 text-white shadow-lg z-10 h-16 flex items-center justify-between px-6">
-        <h1 class="text-2xl font-bold">Tests de Repaso - GRUPO I</h1>
+    <div class="fixed top-0 left-0 right-0 bg-blue-700 text-white shadow-lg z-30 h-16 flex items-center justify-between px-6">
+        <div class="flex items-center">
+            <button id="menu-toggle" class="md:hidden mr-4 text-white focus:outline-none">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7"></path></svg>
+            </button>
+            <h1 class="text-xl md:text-2xl font-bold">Tests de Repaso - GRUPO I</h1>
+        </div>
         <div id="scoreDisplay" class="text-lg font-semibold">Puntuación: 0 / 0</div>
     </div>
+    
+    <div id="overlay" class="fixed inset-0 bg-black bg-opacity-50 z-10 hidden md:hidden"></div>
 
     <div class="flex pt-16">
         <!-- Sidebar de Temas -->
-        <div class="w-64 bg-white shadow-xl sidebar p-4">
+        <aside id="sidebar" class="w-64 bg-white shadow-xl p-4 transform -translate-x-full md:translate-x-0 fixed md:sticky top-0 md:top-16 z-20 h-full overflow-y-auto transition-transform duration-300 ease-in-out">
             <h2 class="text-lg font-semibold mb-4 text-blue-700">Temario</h2>
             <nav id="topicNav">
                 <!-- Los enlaces a los temas se generarán aquí -->
             </nav>
-        </div>
+        </aside>
 
         <!-- Contenido Principal del Test -->
-        <main class="flex-1 p-8">
-            <h2 id="quizTitle" class="text-3xl font-bold mb-6 text-gray-700">Selecciona un tema para empezar</h2>
+        <main id="main-content" class="flex-1 p-4 md:p-8 transition-all duration-300">
+            <h2 id="quizTitle" class="text-2xl md:text-3xl font-bold mb-6 text-gray-700">Selecciona un tema para empezar</h2>
             <div id="quizContainer" class="space-y-6">
                 <!-- Las preguntas del quiz se cargarán aquí -->
             </div>
@@ -81,14 +84,34 @@
                 { q: '¿Qué criterio de prelación de fuentes establece el Art. 38.1 del Estatuto del TIJ en caso de conflicto?', a: ['Lex posterior derogat legi priori', 'Lex superior derogat legi inferiori', 'Lex specialis derogat legi generali', 'No existe un orden o prelación entre ellas, salvo ius cogens'], correct: 3, rationale: 'El Artículo 38.1 no establece un orden jerárquico entre las fuentes principales (a, b, c), sino que se aplican los principios generales de derecho.' },
                 { q: '¿Cuál de los siguientes NO es un medio auxiliar según el Estatuto del TIJ?', a: ['La Doctrina', 'La Jurisprudencia', 'La Costumbre Internacional', 'Las decisiones judiciales'], correct: 2, rationale: 'La Costumbre Internacional es una fuente principal (literal b), mientras que la doctrina y la jurisprudencia son medios auxiliares (literal d).' },
                 { q: '¿Cuáles son los dos elementos constitutivos de la Costumbre Internacional?', a: ['La práctica general y la voluntad expresa', 'El elemento material y la opinio iuris', 'El acto unilateral y la jurisprudencia', 'El consenso y la notificación'], correct: 1, rationale: 'La Costumbre se compone del elemento material u objetivo (práctica constante y uniforme) y el elemento subjetivo o psicológico (opinio iuris).' },
-                { q: '¿Qué característica esencial tienen las normas de ius cogens?', a: ['Son normas dispositivas que admiten acuerdo en contrario.', 'Son normas de Derecho Internacional particular.', 'Son normas que prevalecen siempre y no admiten acuerdo en contrario.', 'Son normas cuya existencia debe ser probada por quien las alega.'], correct: 2, rationale: 'Las normas de ius cogens son normas imperativas que protegen valores esenciales de la comunidad internacional y prevalecen sobre cualquier otra norma.' }
+                { q: '¿Qué característica esencial tienen las normas de ius cogens?', a: ['Son normas dispositivas que admiten acuerdo en contrario.', 'Son normas de Derecho Internacional particular.', 'Son normas que prevalecen siempre y no admiten acuerdo en contrario.', 'Son normas cuya existencia debe ser probada por quien las alega.'], correct: 2, rationale: 'Las normas de ius cogens son normas imperativas que protegen valores esenciales de la comunidad internacional y prevalecen sobre cualquier otra norma.' },
+                { q: '¿Qué es un acto unilateral del Estado?', a: ['Una declaración de voluntad con intención de producir efectos jurídicos obligatorios.', 'Un acuerdo entre dos Estados.', 'Una resolución de una Organización Internacional.', 'Una sentencia de un tribunal internacional.'], correct: 0, rationale: 'Un acto unilateral es una manifestación de voluntad de un solo sujeto de DI, cuya validez no depende de otros actos jurídicos y que tiende a producir efectos para el sujeto que la emite.'},
+                { q: '¿Cuál de estos es un ejemplo de acto unilateral?', a: ['La ratificación de un tratado.', 'La protesta diplomática.', 'Una sentencia del TIJ.', 'La adhesión a una organización internacional.'], correct: 1, rationale: 'La protesta, la notificación, la promesa, el reconocimiento o la renuncia son ejemplos clásicos de actos unilaterales.'},
+                { q: '¿Qué son los principios generales del Derecho?', a: ['Normas consuetudinarias de ámbito universal.', 'Principios extraídos de los ordenamientos internos y adaptados al DI.', 'Las disposiciones de la Carta de la ONU.', 'Las opiniones de la doctrina más cualificada.'], correct: 1, rationale: 'Son principios comunes a los distintos ordenamientos estatales que, por su generalidad, pueden aplicarse en el orden internacional.'},
+                { q: 'La equidad "contra legem" (contra la ley), ¿puede ser aplicada por el TIJ?', a: ['Sí, siempre que lo considere oportuno.', 'No, en ningún caso.', 'Solo si las partes en la controversia así lo acuerdan.', 'Sí, pero solo para controversias territoriales.'], correct: 2, rationale: 'El Art. 38.2 del Estatuto del TIJ permite al tribunal decidir un litigio "ex aequo et bono" (según la equidad) si las partes así lo convienen, lo que incluye la equidad contra legem.'},
+                { q: '¿Qué es el "soft law" o derecho blando?', a: ['Normas de ius cogens.', 'Tratados internacionales no ratificados.', 'Instrumentos que no crean obligaciones jurídicas vinculantes pero que pueden guiar la conducta de los Estados.', 'La jurisprudencia de los tribunales arbitrales.'], correct: 2, rationale: 'El soft law se refiere a resoluciones no vinculantes, declaraciones, etc., que aunque carecen de obligatoriedad formal, tienen relevancia política y pueden influir en el desarrollo del derecho vinculante.'},
+                { q: '¿La jurisprudencia del TIJ crea precedentes vinculantes para casos futuros?', a: ['Sí, como en el sistema del Common Law.', 'No, sus sentencias solo son obligatorias para las partes y respecto del caso decidido.', 'Sí, pero solo para los 5 miembros permanentes del CS.', 'No, la jurisprudencia no es fuente de DI.'], correct: 1, rationale: 'El Art. 59 del Estatuto del TIJ establece la regla de la cosa juzgada relativa: la sentencia es vinculante solo para las partes en litigio y para el caso concreto.'},
+                { q: '¿Qué implica el principio de "Estoppel" o de los actos propios?', a: ['Un Estado no puede contradecir su propia conducta anterior si ello lesiona los derechos o expectativas de otro Estado.', 'Los Estados deben cumplir de buena fe sus obligaciones.', 'Los tratados prevalecen sobre el derecho interno.', 'Las normas especiales priman sobre las generales.'], correct: 0, rationale: 'El Estoppel impide que un Estado vaya en contra de sus propios actos cuando con su conducta ha inducido a otro a actuar de una determinada manera, generando expectativas legítimas.'},
+                { q: '¿Qué es la aquiescencia?', a: ['La aceptación expresa de una norma.', 'El silencio o pasividad de un Estado ante un comportamiento de otro que normalmente exigiría una protesta.', 'La firma de un tratado ad referéndum.', 'La objeción persistente a una costumbre.'], correct: 1, rationale: 'La aquiescencia equivale a un reconocimiento tácito manifestado mediante un comportamiento unilateral que la otra parte puede interpretar como un consentimiento.'},
+                { q: '¿Qué diferencia a un principio general del Derecho de una norma consuetudinaria?', a: ['Los principios no requieren práctica estatal (elemento material).', 'La costumbre es escrita y los principios no.', 'Los principios solo se aplican en ausencia de tratado.', 'No hay ninguna diferencia.'], correct: 0, rationale: 'Mientras la costumbre requiere una práctica y una opinio iuris, los principios generales se derivan de la lógica jurídica de los sistemas internos y no necesitan una práctica estatal previa.'},
+                { q: 'El objetor persistente es una figura relacionada con:', a: ['Los tratados internacionales.', 'La costumbre internacional.', 'Los actos unilaterales.', 'Las resoluciones de la AGNU.'], correct: 1, rationale: 'Un Estado que se opone de forma clara, constante e inequívoca a una norma consuetudinaria mientras esta se encuentra en proceso de formación no quedará vinculado por ella.'}
             ]},
             { id: 'tema2', title: 'Tema 2: Tratados Internacionales (I). Celebración.', questions: [
                 { q: 'Según la CVDT, ¿qué NO es un requisito esencial para un Tratado Internacional?', a: ['Ser un acuerdo por escrito', 'Estar regido por el Derecho Internacional', 'Tener un número ilimitado de partes', 'Ser celebrado entre sujetos de Derecho Internacional'], correct: 2, rationale: 'La CVDT se aplica a tratados entre Estados y no impone un límite al número de partes.' },
                 { q: '¿Qué fase de la celebración de tratados tiene por objeto acordar que el texto adoptado es el "auténtico y definitivo"?', a: ['Negociación', 'Adopción', 'Autenticación', 'Manifestación del consentimiento'], correct: 2, rationale: 'La Autenticación (mediante firma, firma ad referéndum o rúbrica) es el acto por el que se establece el texto como auténtico y definitivo.' },
                 { q: '¿Quién tiene la competencia general en España para dirigir la política exterior y la iniciativa de la negociación de tratados?', a: ['El Rey, como Jefe del Estado.', 'El Consejo de Estado.', 'El Gobierno (Consejo de Ministros y MAEUEC).', 'Las Cortes Generales.'], correct: 2, rationale: 'El Gobierno dirige la política exterior (Art. 97 CE) y corresponde al MAEUEC la competencia general en la materia.' },
                 { q: 'En la adopción del texto de un tratado en el seno de una conferencia internacional, ¿qué mayoría se requiere por regla general?', 'a': ['Unanimidad', 'Mayoría de dos tercios de los Estados presentes y votantes', 'Mayoría simple', 'La mayoría de los Estados negociadores'], correct: 1, rationale: 'El Art. 9.2 de la CVDT establece la mayoría de dos tercios, a menos que se decida aplicar una regla diferente.' },
-                { q: '¿Qué se necesita en España para la manifestación del consentimiento de los tratados que afecten a la integridad territorial?', a: ['Ley Ordinaria', 'Ley Orgánica', 'Mayoría de cada una de las Cámaras (Art. 94.1 CE)', 'La sola firma del Rey con refrendo del Ministro'], correct: 2, rationale: 'El Art. 94.1 CE requiere la previa autorización de las Cortes Generales (aprobación por mayoría de cada Cámara) para los tratados de carácter político, militar, territorial, etc.' }
+                { q: '¿Qué se necesita en España para la manifestación del consentimiento de los tratados que afecten a la integridad territorial?', a: ['Ley Ordinaria', 'Ley Orgánica', 'Mayoría de cada una de las Cámaras (Art. 94.1 CE)', 'La sola firma del Rey con refrendo del Ministro'], correct: 2, rationale: 'El Art. 94.1 CE requiere la previa autorización de las Cortes Generales (aprobación por mayoría de cada Cámara) para los tratados de carácter político, militar, territorial, etc.' },
+                { q: '¿Qué es la "plenipotencia" o plenos poderes?', a: ['La capacidad inherente del Jefe de Estado para firmar tratados.', 'Un documento que emana de la autoridad competente de un Estado y por el que se designa a una o varias personas para representar al Estado.', 'La fase de negociación de un tratado multilateral.', 'El acto de depósito del instrumento de ratificación.'], correct: 1, rationale: 'El Art. 2.1.c de la CVDT lo define como el documento que acredita la representación de un Estado para las distintas fases de celebración de un tratado.'},
+                { q: '¿Quiénes NO necesitan presentar plenos poderes según el Art. 7.2 de la CVDT?', a: ['Los embajadores para la adopción del texto de un tratado con el país receptor.', 'Los Jefes de Estado, Jefes de Gobierno y Ministros de Asuntos Exteriores.', 'Los representantes acreditados ante una conferencia internacional.', 'Todos ellos necesitan plenos poderes.'], correct: 1, rationale: 'Los Jefes de Estado, de Gobierno y Ministros de AAEE tienen capacidad inherente para representar al Estado en todos los actos relativos a la celebración de un tratado.'},
+                { q: '¿Qué significa la "firma ad referéndum"?', a: ['Una firma definitiva que no requiere ratificación.', 'Una firma sujeta a confirmación posterior por el Estado.', 'El acto de autenticación mediante rúbrica.', 'La firma de un tratado por un representante sin plenos poderes.'], correct: 1, rationale: 'Es una firma cuyo efecto definitivo depende de su confirmación por la autoridad competente del Estado, actuando como una firma condicionada.'},
+                { q: 'En España, ¿qué órgano califica la naturaleza de un tratado a efectos de su tramitación parlamentaria (Art. 93, 94.1 o 94.2 CE)?', a: ['El Tribunal Constitucional.', 'El Consejo de Estado, con carácter vinculante.', 'El Gobierno, previo dictamen del Consejo de Estado.', 'Las Cortes Generales.'], correct: 2, rationale: 'El Gobierno, con el dictamen preceptivo pero no vinculante del Consejo de Estado, es quien califica el tratado para determinar la vía parlamentaria a seguir.'},
+                { q: '¿Qué tipo de tratado requiere autorización mediante Ley Orgánica en España?', a: ['Los que impliquen obligaciones financieras para la Hacienda Pública.', 'Los de carácter militar.', 'Aquellos por los que se atribuya a una organización o institución internacional el ejercicio de competencias derivadas de la Constitución.', 'Todos los tratados de la UE.'], correct: 2, rationale: 'El Art. 93 de la Constitución Española reserva la Ley Orgánica para los tratados de cesión de competencias soberanas, como fue el caso de la adhesión a las Comunidades Europeas.'},
+                { q: '¿Qué implica el "depósito" de un tratado?', a: ['La custodia del texto original del tratado y la centralización de todos los actos relativos a él.', 'La publicación del tratado en el diario oficial.', 'La fase de negociación en secreto.', 'La entrada en vigor provisional.'], correct: 0, rationale: 'El depositario (un Estado, varios, o una OI) es el custodio del texto auténtico y centraliza la recepción de instrumentos de ratificación, adhesión, reservas, etc.'},
+                { q: 'Un tratado produce efectos jurídicos para terceros Estados sin su consentimiento?', a: ['Sí, siempre.', 'No, como regla general (pacta tertiis nec nocent nec prosunt).', 'Solo si les impone obligaciones.', 'Solo si son miembros de la ONU.'], correct: 1, rationale: 'El Art. 34 de la CVDT consagra el principio del efecto relativo de los tratados: no crean obligaciones ni derechos para un tercer Estado sin su consentimiento.'},
+                { q: '¿Cuándo puede un tratado crear una obligación para un tercer Estado?', a: ['Cuando el tercer Estado lo acepta expresamente y por escrito.', 'Cuando el tratado tiene carácter humanitario.', 'Automáticamente si el tratado es adoptado por la AGNU.', 'Nunca.'], correct: 0, rationale: 'El Art. 35 de la CVDT exige que las partes tengan esa intención y que el tercer Estado acepte expresamente y por escrito dicha obligación.'},
+                { q: '¿Qué es la "aplicación provisional" de un tratado?', a: ['La aplicación del tratado antes de su entrada en vigor, si así se ha convenido.', 'La aplicación del tratado solo a una parte del territorio.', 'La aplicación retroactiva de sus disposiciones.', 'Un sinónimo de entrada en vigor.'], correct: 0, rationale: 'El Art. 25 de la CVDT permite que un tratado o parte de él se aplique provisionalmente antes de su entrada en vigor si el propio tratado lo dispone o los negociadores lo han convenido.'},
+                { q: 'En el sistema español, ¿quién manifiesta formalmente el consentimiento del Estado en obligarse por un tratado (ratificación, adhesión, etc.)?', a: ['El Presidente del Gobierno.', 'El Ministro de Asuntos Exteriores.', 'Las Cortes Generales.', 'El Rey.'], correct: 3, rationale: 'El Art. 63.2 de la CE establece que corresponde al Rey manifestar el consentimiento del Estado para obligarse internacionalmente por medio de tratados, con el refrendo del Ministro de Asuntos Exteriores.'}
             ]},
             { id: 'tema3', title: 'Tema 3: Tratados Internacionales (II). Reservas, entrada en vigor y crisis.', questions: [
                 { q: '¿Qué distingue una **reserva** de una declaración interpretativa?', a: ['La reserva busca excluir o modificar efectos jurídicos de ciertas disposiciones.', 'La reserva puede ser tácita.', 'La reserva se puede formular en cualquier momento.', 'La declaración interpretativa tiene efectos jurídicos obligatorios.'], correct: 0, rationale: 'La reserva (Art. 2.1.d CVDT) busca excluir o modificar los efectos jurídicos, mientras la declaración interpretativa solo busca precisar el sentido o alcance.' },
@@ -367,6 +390,22 @@
             } else {
                  document.getElementById('quizTitle').textContent = "¡Carga completada! Todos los tests están pendientes de completar.";
             }
+
+            // Mobile menu logic
+            const menuToggle = document.getElementById('menu-toggle');
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('overlay');
+            const mainContent = document.getElementById('main-content');
+
+            menuToggle.addEventListener('click', () => {
+                sidebar.classList.toggle('open');
+                overlay.classList.toggle('hidden');
+            });
+
+            overlay.addEventListener('click', () => {
+                sidebar.classList.remove('open');
+                overlay.classList.add('hidden');
+            });
         });
     </script>
 
