@@ -111,11 +111,21 @@
             });
         }
 
+        // Funcionalidad del menú móvil
+        function closeSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('overlay');
+            sidebar.classList.remove('open');
+            overlay.classList.add('hidden');
+}
+
         async function loadQuiz(index) {
             currentQuizData = quizzesData[index];
             currentAnswers = Array(currentQuizData.questions.length).fill(null);
             score = 0;
             totalQuestions = 0;
+
+            closeSidebar();
 
             document.getElementById('quizTitle').textContent = currentQuizData.title;
             document.getElementById('quizCompletion').classList.add('hidden');
@@ -261,8 +271,7 @@
             });
 
             overlay.addEventListener('click', () => {
-                sidebar.classList.remove('open');
-                overlay.classList.add('hidden');
+                closeSidebar();
             });
         });
     </script>
