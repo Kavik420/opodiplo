@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Esquemas y Diagramas - GRUPO I</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f3f4f6;
+        }
+        .diagram-card {
+            border-top: 4px solid #8b5cf6; /* Morado para distinguir */
+        }
+    </style>
+</head>
+<body class="text-gray-800">
+
+    <div class="fixed top-0 left-0 right-0 bg-purple-700 text-white shadow-lg z-10 h-16 flex items-center px-6">
+        <a href="index.html" class="flex items-center text-white hover:text-purple-200 transition duration-150">
+            <svg class="w-6 h-6 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
+            <span class="text-xl font-bold">Volver a los Tests</span>
+        </a>
+        <h1 class="text-xl md:text-2xl font-bold ml-6">📚 Esquemas de Temas - GRUPO I</h1>
+    </div>
+
+    <main id="diagram-list" class="pt-20 p-4 md:p-8 space-y-8">
+        </main>
+
+    <script src="quizzes.js"></script> 
+
+    <script>
+        // Inicializar Mermaid
+        mermaid.initialize({ startOnLoad: true, theme: 'neutral' });
+
+        function renderDiagrams() {
+            const container = document.getElementById('diagram-list');
+            container.innerHTML = '';
+            let hasDiagrams = false;
+
+            quizzesData.forEach((quiz, index) => {
+                if (quiz.diagram) {
+                    hasDiagrams = true;
+                    const themeNumber = quiz.id.replace('tema', 'T'); 
+                    const diagramElement = document.createElement('div');
+                    diagramElement.className = 'diagram-card bg-white p-6 rounded-xl shadow-xl';
+                    diagramElement.innerHTML = `
+                        <h2 class="text-2xl font-bold mb-4 text-purple-700 flex items-center">
+                            <svg class="w-6 h-6 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                            ${themeNumber}: ${quiz.title}
+                        </h2>
+                        <div class="mermaid flex justify-center overflow-x-auto p-4 bg-gray-50 rounded-lg">
+                            ${quiz.diagram}
+                        </div>
+                    `;
+                    container.appendChild(diagramElement);
+                }
+            });
+
+            if (!hasDiagrams) {
+                 container.innerHTML = '<p class="text-xl text-red-600">⚠️ **No hay diagramas disponibles:** Ningún tema tiene un esquema definido aún.</p>';
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', renderDiagrams);
+    </script>
+
+</body>
+</html>
